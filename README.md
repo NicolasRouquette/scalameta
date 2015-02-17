@@ -6,7 +6,7 @@ This example shows how to set up dependencies and organize a project to make use
 
 At compile time, scala.meta is currently only available to compiler plugins that run after the `convert` phase provided by [scalameta/scalahost](https://github.com/scalameta/scalahost). In the future, as per [our roadmap](https://github.com/scalameta/scalameta/blob/master/docs/roadmap.md), we plan to also expose scala.meta to macros, allowing metaprograms written against scala.meta to be called automatically by the compiler without the need for compiler plugins. This example features a compiler plugin that depends on scalahost and provides a phase that runs after `convert` and calls into custom logic from [CompileTime.scala](https://github.com/scalameta/example/blob/master/compiletime/src/main/scala/org/scalameta/example/CompileTime.scala).
 
-```
+```scala
 package org.scalameta.example
 
 import scala.meta.internal.ast._
@@ -31,7 +31,7 @@ The infrastructure of `CompileTime` does the following:
 
 At runtime, scala.meta is available to anyone who wants to metaprogram against the classes on a given classpath. This example features a simple console application that depends on scalahost and calls into custom logic from [Runtime.scala](https://github.com/scalameta/example/blob/master/runtime/src/main/scala/org/scalameta/example/Runtime.scala).
 
-```
+```scala
 package org.scalameta.example
 
 import scala.meta.internal.ast._
