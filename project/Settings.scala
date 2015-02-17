@@ -158,12 +158,12 @@ object Settings {
     fullClasspath in Test := {
       val defaultValue = (fullClasspath in Test).value
       val classpath = defaultValue.files.map(_.getAbsolutePath)
-      System.setProperty("sbt.paths.tests.classpath", classpath.mkString(java.io.File.pathSeparatorChar.toString))
+      System.setProperty("sbt.paths." + projectName + ".classpath", classpath.mkString(java.io.File.pathSeparatorChar.toString))
       defaultValue
     },
     resourceDirectory in Test := {
       val defaultValue = (resourceDirectory in Test).value
-      System.setProperty("sbt.paths.tests.resources", defaultValue.getAbsolutePath)
+      System.setProperty("sbt.paths." + projectName + ".resources", defaultValue.getAbsolutePath)
       defaultValue
     }
   )

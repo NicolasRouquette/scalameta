@@ -9,13 +9,14 @@ object ExampleBuild extends Build {
     id = "root",
     base = file("root"),
     settings = sharedSettings ++ Seq(
-      dontPackage
+      dontPackage,
+      run in Compile := (run in (runtime, Compile)).evaluated
     )
-  ) aggregate (plugin, tests)
+  ) aggregate (compiletime, runtime, tests)
 
-  lazy val plugin = Project(
-    id   = "example",
-    base = file("plugin"),
+  lazy val compiletime = Project(
+    id   = "compiletime",
+    base = file("compiletime"),
     settings = publishableSettings ++ mergeDependencies ++ Seq(
       libraryDependencies += compiler(languageVersion),
       libraryDependencies += scalameta,
@@ -23,21 +24,22 @@ object ExampleBuild extends Build {
     )
   )
 
-  lazy val sandbox = Project(
-    id   = "sandbox",
-    base = file("sandbox"),
-    settings = sharedSettings ++ Seq(
-      usePlugin(plugin)
-    )
-  ) dependsOn (plugin)
+  lazy val runtime = Project(
+    id   = "runtime",
+    base = file("runtime"),
+    settings = publishableSettings ++ mergeDependencies ++ Seq(
+      libraryDependencies += scalameta,
+      libraryDependencies += scalahost
+    ) ++ exposeClasspaths("runtime")
+  )
 
   lazy val tests = Project(
     id   = "tests",
     base = file("tests"),
     settings = sharedSettings ++ Seq(
-      usePlugin(plugin),
+      usePlugin(compiletime),
       libraryDependencies ++= Seq(scalatest, scalacheck),
       dontPackage
     ) ++ exposeClasspaths("tests")
-  ) dependsOn (plugin)
+  ) dependsOn (compiletime, runtime)
 }

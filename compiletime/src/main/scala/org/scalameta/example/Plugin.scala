@@ -5,7 +5,7 @@ import scala.meta.internal.hosts.scalac.{PluginBase => ScalahostPlugin}
 import scala.tools.nsc.plugins.{Plugin => NscPlugin, PluginComponent => NscPluginComponent}
 import org.scalameta.reflection._
 
-class Plugin(val global: Global) extends ScalahostPlugin with Example {
+class Plugin(val global: Global) extends ScalahostPlugin with CompileTime {
   val name = "example"
   val description = """An example of using pre-alpha scala.meta APIs.
   For more information visit https://github.com/scalameta/example"""

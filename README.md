@@ -1,19 +1,18 @@
-### An example of using pre-alpha scala.meta APIs
+### An example of using scala.meta APIs
 
-While the M1 release of scala.meta is [still not there](http://scalamacros.org/news/2014/11/30/state-of-the-meta-fall-2014.html), there are definitely some experiments that can be performed with our APIs. We've put up this project to show what can be done and what's the infrastructural work required to get things working.
+This example shows how to set up dependencies and organize a project to make use of syntactic and semantic APIs of scala.meta. Consult the [documentation of scalameta/scalameta](https://github.com/scalameta/scalameta/blob/master/README.md) to learn about the fundamental notions of scala.meta and see how to make use of them to carry out typical metaprogramming tasks.
 
-#### Overview
+#### Compile-time metaprogramming with scala.meta
 
-At the moment, scala.meta trees are only available to compiler plugins that run after the `convert` phase provided by [scalahost](https://github.com/scalameta/scalahost). This project is a compiler plugin that depends on scalahost and provides a phase that runs after `convert` and calls into custom logic from [Example.scala](https://github.com/scalameta/example/blob/master/plugin/src/main/scala/org/scalameta/example/Example.scala).
+At compile time, scala.meta is currently only available to compiler plugins that run after the `convert` phase provided by [scalameta/scalahost](https://github.com/scalameta/scalahost). In the future, as per [our roadmap](https://github.com/scalameta/scalameta/blob/master/docs/roadmap.md), we plan to also expose scala.meta to macros, allowing metaprograms written against scala.meta to be called automatically by the compiler without the need for compiler plugins. This example features a compiler plugin that depends on scalahost and provides a phase that runs after `convert` and calls into custom logic from [CompileTime.scala](https://github.com/scalameta/example/blob/master/compiletime/src/main/scala/org/scalameta/example/CompileTime.scala).
 
 ```
 package org.scalameta.example
 
 import scala.meta.internal.ast._
-import scala.meta.semantic._
 import scala.meta.internal.hosts.scalac._
 
-trait Example {
+trait CompileTime {
   val global: scala.tools.nsc.Global
   implicit val c = Scalahost.mkSemanticContext(global)
 
@@ -23,27 +22,34 @@ trait Example {
 }
 ```
 
-The infrastructure of `Example` does the following:
-  * `import scala.meta.internal.ast._` brings [internal representation](https://github.com/scalameta/scalameta/blob/master/scalameta/src/main/scala/scala/meta/Trees.scala#L68) for trees underlying [core traits](https://github.com/scalameta/scalameta/blob/master/scalameta/src/main/scala/scala/meta/Trees.scala) and [quasiquotes](https://github.com/scalameta/scalameta/blob/master/scalameta/src/main/scala/scala/meta/semantic/package.scala). It is necessary, because our implementation of  quasiquotes is currently a stub, so manual tree construction/deconstruction might be required.
-  * `import scala.meta.semantic._` brings [semantic APIs](https://github.com/scalameta/scalameta/blob/master/scalameta/src/main/scala/scala/meta/semantic/package.scala).
-  * `import scala.meta.internal.hosts.scalac._` brings core functionality of the [scalameta/scalahost](https://github.com/scalameta/scalahost) compiler plugin.
-  * `implicit val c = Scalahost.mkSemanticContext(global)` creates a semantic context, i.e. something that can process requests to semantic APIs. An implicit value of type `scala.meta.semantic.Context` is required to be in scope for most semantic APIs. Read more about contexts in [our docs](https://github.com/scalameta/scalameta/blob/master/docs/hosts.md).
+The infrastructure of `CompileTime` does the following:
+  * `import scala.meta.internal.ast._` brings [internal representation](https://github.com/scalameta/scalameta/blob/master/scalameta/src/main/scala/scala/meta/Trees.scala#70) for trees underlying [core traits](https://github.com/scalameta/scalameta/blob/master/scalameta/src/main/scala/scala/meta/Trees.scala) and [quasiquotes](https://github.com/scalameta/scalameta/blob/master/scalameta/src/main/scala/scala/meta/package.scala). This import is necessary, because our implementation of  quasiquotes is currently a stub, so manual tree construction/deconstruction might be required to manipulate scala.meta trees.
+  * `import scala.meta.internal.hosts.scalac._` brings core functionality of the [scalameta/scalahost](https://github.com/scalameta/scalahost) library.
+  * `implicit val c = Scalahost.mkSemanticContext(global)` creates a semantic context, i.e. something that can process requests to semantic APIs. An implicit value of type `scala.meta.semantic.Context` is required to be in scope for most semantic APIs. Read more about contexts in [our documentation](https://github.com/scalameta/scalameta/blob/master/README.md).
 
-In the `example` function you can do the following:
-  * Analyze the syntax of your entire program by looking into `sources`
-  * Parse strings into trees by importing `import scala.meta.syntactic._` and saying `<java.lang.String or java.io.File>.parse[<target tree type>]`, where target tree type might be any of the [core traits](https://github.com/scalameta/scalameta/blob/master/scalameta/src/main/scala/scala/meta/Trees.scala) (`Source`, `Term`, `Type`, etc)
+#### Runtime metaprogramming with scala.meta
 
-#### Future
+At runtime, scala.meta is available to anyone who wants to metaprogram against the classes on a given classpath. This example features a simple console application that depends on scalahost and calls into custom logic from [Runtime.scala](https://github.com/scalameta/example/blob/master/runtime/src/main/scala/org/scalameta/example/Runtime.scala).
 
-  1. Provide implementations for semantic APIs. With that in place, it'll become possible to resolve references, compute types of terms, etc (something that's currently possible with Symbols and Types in the scala.reflect API).
+```
+package org.scalameta.example
 
-  2. Remember all the details of how underlying programs were written (formatting, comments, etc). After this is implemented, it will become possible to implement precise code rewritings that don't lose any formatting. Also, we will get position information, which will allow to emit targetted warning and error messages.
+import scala.meta.internal.ast._
+import scala.meta.internal.hosts.scalac._
 
-  3. Replace manual tree construction/deconstruction via `import scala.meta.internal.ast._` with familiar quasiquote-based API from `import scala.meta.syntactic._`/`import scala.meta.semantic._`. The `internal` API will either be hidden and discouraged or will go into oblivion completely.
+object Runtime extends App {
+  val scalaLibraryJar = classOf[App].getProtectionDomain().getCodeSource()
+  val scalaLibraryPath = scalaLibraryJar.getLocation().getFile()
+  implicit val c = Scalahost.mkStandaloneContext(s"-cp $scalaLibraryPath")
+  // ...
+}
+```
 
-  4. Avoid the need to write compiler plugins and instantiate hosts explicitly. First, with tree persistence, it'll be possible to get trees for everything on classpath, which compiled with the scalahost compiler plugin. Second, with macro support, it'll be possible to get trees of arguments of macro applications. We can consider and expose other ways of getting trees (e.g. loading them from an SBT project).
-
-  5. Introduce means to obtain syntactic trivia associated with abstract syntax trees. After that, one will be able to discern `class C` and `class C{}`, `return` and `return ()` and other minor variations of syntax.
+The infrastructure of `Runtime` does the following:
+  * `import scala.meta.internal.ast._` is explained above.
+  * `import scala.meta.internal.hosts.scalac._` is explained above.
+  * `val scalaLibraryJar = classOf[App].getProtectionDomain().getCodeSource()` and `val scalaLibraryPath = scalaLibraryJar.getLocation().getFile()` detect the location of the scala-library jar file, so that it can be put on a classpath of the context that is instantiated below.
+  * `implicit val c = Scalahost.mkStandaloneContext(s"-cp $scalaLibraryPath")` creates a semantic context that will see everything on a given classpath. This context creates an instance of `scala.tools.nsc.Global` under the covers.
 
 #### Acknowledgements
 
