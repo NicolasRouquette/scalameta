@@ -10,11 +10,11 @@ At compile time, scala.meta is currently only available to compiler plugins that
 package org.scalameta.example
 
 import scala.meta.internal.ast._
-import scala.meta.internal.hosts.scalac._
+import scala.meta.Scalahost
 
 trait CompileTime {
   val global: scala.tools.nsc.Global
-  implicit val c = Scalahost.mkSemanticContext(global)
+  implicit val c = Scalahost.mkGlobalContext(global)
 
   def example(sources: List[Source]): Unit = {
     // ...
@@ -24,8 +24,8 @@ trait CompileTime {
 
 The infrastructure of `CompileTime` does the following:
   * `import scala.meta.internal.ast._` brings [internal representation](https://github.com/scalameta/scalameta/blob/master/scalameta/src/main/scala/scala/meta/Trees.scala#70) for trees underlying [core traits](https://github.com/scalameta/scalameta/blob/master/scalameta/src/main/scala/scala/meta/Trees.scala) and [quasiquotes](https://github.com/scalameta/scalameta/blob/master/scalameta/src/main/scala/scala/meta/package.scala). This import is necessary, because our implementation of  quasiquotes is currently a stub, so manual tree construction/deconstruction might be required to manipulate scala.meta trees.
-  * `import scala.meta.internal.hosts.scalac._` brings core functionality of the [scalameta/scalahost](https://github.com/scalameta/scalahost) library.
-  * `implicit val c = Scalahost.mkSemanticContext(global)` creates a semantic context, i.e. something that can process requests to semantic APIs. An implicit value of type `scala.meta.semantic.Context` is required to be in scope for most semantic APIs. Read more about contexts in [our documentation](https://github.com/scalameta/scalameta/blob/master/README.md).
+  * `import scala.meta.Scalahost` brings core functionality of the [scalameta/scalahost](https://github.com/scalameta/scalahost) library.
+  * `implicit val c = Scalahost.mkGlobalContext(global)` creates a semantic context, i.e. something that can process requests to semantic APIs. An implicit value of type `scala.meta.semantic.Context` is required to be in scope for most semantic APIs. Read more about contexts in [our documentation](https://github.com/scalameta/scalameta/blob/master/README.md).
 
 #### Runtime metaprogramming with scala.meta
 
@@ -35,7 +35,7 @@ At runtime, scala.meta is available to anyone who wants to metaprogram against t
 package org.scalameta.example
 
 import scala.meta.internal.ast._
-import scala.meta.internal.hosts.scalac._
+import scala.meta.Scalahost
 
 object Runtime extends App {
   val scalaLibraryJar = classOf[App].getProtectionDomain().getCodeSource()
