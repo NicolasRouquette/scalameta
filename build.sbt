@@ -65,6 +65,7 @@ lazy val scalahostFoundation = project
   .settings(moduleName := "scalahost-foundation")
   .settings(publishableSettings: _*)
   .settings(dontPackage) // merged in plugin
+  .settings(scalaReflect: _*)
   .dependsOn(scalametaFoundation)
 
 lazy val scalahostInterface = project
