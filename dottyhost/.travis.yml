@@ -1,0 +1,16 @@
+language: scala
+script:
+  - sbt ++$TRAVIS_SCALA_VERSION clean update compile test package
+scala:
+  - 2.11.6
+jdk:
+  - oraclejdk8
+notifications:
+  email:
+    - eugene.burmako@epfl.ch
+env:
+  global:
+   - SCALAMETA_MAVEN_REALM="Sonatype Nexus Repository Manager"
+   - SCALAMETA_MAVEN_DOMAIN="oss.sonatype.org"
+   - secure: "DnnCALzgIoxbP5sOtqSTExnp4xUQShbPTYtAuXTO0DqREvkAdC4wLX3onqAHL5DSTX6vVTErPV2XoTCcnZ3qKa7pE5q788awRstNh9JKl6gR0srCnrEMr/QBa0jeZA7PaurLAWkagSpYPoB3E1q3l8//4m/C8dkK3mcpDpQgraWfLHJkZNZHdjnYW/KL3T/+ktqqH5PNq8JSc84ONO53wrjG72cTXchhbbsfpcbACGdxTnQmpc6fSibngv7dl9cb6suu/86Ut+Jy6t/ZTxfgEqUvqEhQyZm8ziiN5lFpw6n6x62NfDZRMOKnLdmehz/SEDBamrIZgFfUEs7rYev0AuZq1sNzuoxKkj63eZdp0DKvqqCzEW9RnaRjosKb0syMVJbnRRHPQimJP1TdUKQ7hqMRj34OME7nLKI8iBxKEnr10CQe2wBM8ytrif6G7bxCiEYFqLkDmEgMtxef1fKebGj/PnwHXR3Oa4BrBEwLoxwTq/I87q1r9KmIohhQyRj+zcbX0Tf+HdUgTuxZnMO9h0yibVb/ife1y4iK7yURX/hqT6xfSuQpaM0SNYC+5nG+MG0ZMwgXZD/bB0lfVGHAtuofCunVlYpxBUHCLjxtp+ErQvpueAvQnPcGhZiJQSchPioZYpaMDNv6eLbGI+vSs92mhNCqW/Ih9TpCV3gMSQ4="
+   - secure: "jy/Sj2mrB/hZeCyiEfrtkYgHbLwYfywSbe64v4go5mZ55J8L5uRj3EPtspoPO/OwRh5fx+uRujyopq0O/wiPtzo/o2Tj5z1c/7e9N7U/qJF8TeQurFAn0DI37YSkHa/7+h+3mo++hJtu4/5XR67Uu/YEdqUdcTcNEuom8eEjvKoF0wNrRmbPDk1gXAnOQ1d9LCi3gHdKkcejWOdv8wiOJDwn6E5gtGtz4EZgHcK/XwXYbbZkl7WynIKGA3uwhEwfMAPZtVBED/YGzHna1KLkYrplUjqrJ33Egc34Hf+pie1WmaUJfmw8tK6vDWOb27pRVfQP/OAw5aGrY00P1Td553HozTOpnBuMXBrzb8puXeN/rWoP3Vs6krHwwJTCZkOiGLjvN9eFz+1J8SVKOMD8efeOG0CK3tqR+XgQeah1kWh26QDuwqTviHc1zM+ycwaqdtOonn/o7oI18Gc24E5TyiFBjqjPnGdlW+EUAr2Mwj4LXsxC3AahnWjnngwX3nGNAJN2+++AVHEzVwGenmqhRwOjHP4rAUssKfLrVfckovvrC9Yfnw18WWXQIiNu2za/9TLy55m/8neiesv9QhUENEP5CYgOM4f9Ad9hOO46qXsKYTxKFmAz8j19cbMtSCZHb7RoTDQ03We+ON0AHKFnSzVxVuuRp5CR3Lk2Y5M7wFs="
