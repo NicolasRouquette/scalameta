@@ -6,7 +6,8 @@ import scala.collection.immutable.ListMap
 import scala.meta._
 import scala.meta.semantic._
 import scala.meta.internal.{ ast => m }
-import scala.meta.internal.{ semantic => s }
+
+import scala.meta.internal.hosts.scalac.contexts.{ semantic => s }
 import scala.meta.dialects.Scala211
 
 object Environment {
