@@ -203,9 +203,11 @@ lazy val publishableSettings = commonSettings ++ Seq(
 )
 
 def cls = Command.command("cls") { state =>
-  // NOTE: probably only works in iTerm2
+  // For iTerm2
   // kudos to http://superuser.com/questions/576410/how-can-i-partially-clear-my-terminal-scrollback
-  print("\u001b]50;ClearScrollback\u0007")
+  println("\u001b]50;ClearScrollback\u0007")
+  // For Terminal & Xterm: https://stackoverflow.com/a/29876027/1009693
+  println("\u001bc\u001b[3J")
   state
 }
 
